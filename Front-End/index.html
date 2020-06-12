@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html ng-app="telefonia">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Telefonia</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='lib/bootstrap/css/bootstrap.css'>
+    <style>
+        .jumbotron {
+            width: 400px;
+            text-align: center;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .form-control {
+            margin-bottom: 5px;
+        }
+        .selecionado {
+            background-color: yellow;
+        }
+        .negrito {
+            font-weight: bold;
+        }
+    </style>
+    <script src='lib/angular/angular.js'></script>
+    <script src='lib/angular/angular-messages.js'></script>
+    <script>
+        angular.module("telefonia", ["ngMessages"]);
+        angular.module("telefonia").controller("telefoniaController", function($scope, $http){
+            $scope.app = "Telefonia";
+            $scope.contatos = [];
+            
+            // Exemplo
+            // $scope.contatos = [
+            //     {nome: "Lucas", numero:"115"},
+            //     {nome: "Pedro", numero:"116"},
+            //     {nome: "Maria", numero:"117"}
+            // ];
+
+            var carregarContatos = function() {
+                $http.get("http://localhost:3000/ramal").then(function (response) {
+                    $scope.contatos = response.data;
+                });
+            };
+
+            $scope.adicionarContatos = function(contato){
+                $scope.contatos.push(angular.copy(contato));
+                $http.post("http://localhost:3000/ramal", contato).then(function (response) {
+                    $scope.contatos = response.data;
+                });
+                delete $scope.contato;
+                $scope.contatoForm.$setPristine();
+                carregarContatos();
+            };
+
+            $scope.apagarContatos = function(contatos){
+                $scope.contatos = contatos.filter( function(contato) {
+                    if (!contato.selecionado) {
+                        return contato;
+                    }
+                });
+            };
+
+            // $scope.isContatoSelecionado = function(contatos){
+            //     return contatos.some( function(contato){
+            //         return contato.selecionado;
+            //     });
+            // };
+
+        });
+    </script>
+</head>
+<body ng-controller="telefoniaController">
+    <div class="jumbotron">
+        <h3>{{app}}</h3>
+        <table ng-show="contatos.length > 0" class="table">
+            <tr>
+                <th></th>
+                <th>Nome</th>
+                <th>Ramal</th>
+            </tr>
+            <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+                <td><input type="checkbox" ng-model="contato.selecionado"/></td>
+                <td>{{contato.nome}}</td>
+                <td>{{contato.numero}}</td>
+            </tr>
+        </table>
+        <hr>
+        <form name="contatoForm">
+            <input class="form-control" type="text" ng-model="contato.nome" name="nome" placeholder="Nome" ng-required="true"/>
+            <input class="form-control" type="text" ng-model="contato.numero" name="numero" placeholder="Ramal" ng-required="true" ng-pattern="/^\d{3,4}$/"/>
+        </form>
+        
+        <button class="btn btn-primary btn-block" ng-click="adicionarContatos(contato)" ng-disabled="contatoForm.$invalid">Adicionar</button>
+        <button class="btn btn-danger btn-block" ng-click="apagarContatos(contatos)" ng-show="isContatoSelecionado(contatos)">Apagar</button>
+    </div>
+</body>
+</html>
