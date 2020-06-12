@@ -9,18 +9,24 @@ app.use(bodyParser.urlencoded({extended: false})); // ACEITAR APENAS DADOS SIMPL
 app.use(bodyParser.json()); // ACEITAR APENAS FORMATO JSON NO BODY
 
 app.use((req, res, next) =>{
-     res.header('Acces-Control-Allow-Origin', '*');
-     res.header(
-         'Acces-Control-Allow-Header',
-         'Origin, X-Requested-With, Content-Type, Accpet, Authorization'
-     );
+    //  res.header('Acces-Control-Allow-Origin', '*');
+    //  res.header(
+    //      'Acces-Control-Allow-Header',
+    //      'Origin, X-Requested-With, Content-Type, Accpet, Authorization'
+    //  );
 
-     if (req.method === 'OPTIONS') {
-         res.header('Acces-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
-         return res.status(200).send({});
-     }
+    //  if (req.method === 'OPTIONS') {
+    //      res.header('Acces-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+    //      return res.status(200).send({});
+    //  }
 
-     next();
+    //  next();
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers,X-Access-Token,XKey,Authorization');
+    next();
+
 });
 
 app.use('/ramal', rotaRamal);
